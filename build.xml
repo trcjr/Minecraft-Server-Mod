@@ -44,7 +44,8 @@
     </target>
     <target depends="init, get_vanilla_minecraft_server.jar" name="build">
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin"
-            source="${source}" target="${target}" includeantruntime="false">
+            source="${source}" target="${target}" includeantruntime="false"
+            encoding="utf8">
             <src path="src"/>
             <classpath refid="${ant.project.name}.classpath"/>
         </javac>
