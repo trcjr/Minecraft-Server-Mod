@@ -308,7 +308,7 @@ public abstract class DataSource {
      * @param name
      * @return item
      */
-    public int getItem(String name) {
+    public Item getItem(String name) {
         synchronized (itemLock) {
             if (items.containsKey(name)) {
                 return items.get(name);
