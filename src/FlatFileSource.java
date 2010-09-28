@@ -524,7 +524,8 @@ public class FlatFileSource extends DataSource {
 
         // This, for sure, now exists.
         synchronized (itemLock) {
-            items = new HashMap<String, Integer>();
+            items_map = new HashMap<String, Integer>();
+            items = new HashMap<String, Item>();
             try {
                 Scanner scanner = new Scanner(new File(location));
                 while (scanner.hasNextLine()) {
@@ -538,7 +539,8 @@ public class FlatFileSource extends DataSource {
                     String[] split = line.split(":");
                     String name = split[0];
 
-                    this.items.put(name, Integer.parseInt(split[1]));
+                    this.items_map.put(name, Integer.parseInt(split[1]));
+                    this.items.put(name, new Item(Integer.parseInt(split[1]), name));
                 }
                 scanner.close();
             } catch (Exception e) {

@@ -37,7 +37,7 @@ public class Player {
      * @param item
      */
     public void giveItem(Item item) {
-        giveItem(item.getItemId(), item.getAmount());
+        giveItem(item.getId(), item.getAmount());
     }
 
     /**

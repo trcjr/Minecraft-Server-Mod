@@ -1,11 +1,9 @@
 
-import java.net.SocketAddress;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -619,7 +617,7 @@ public class id extends ej
                                     try {
                                         itemId = Integer.parseInt(entry.getKey());
                                     } catch (NumberFormatException n) {
-                                        itemId = etc.getInstance().getDataSource().getItem(entry.getKey());
+                                        itemId = etc.getInstance().getDataSource().getItemId(entry.getKey());
                                     }
 
                                     int temp = kit.IDs.get(entry.getKey());
@@ -686,9 +684,9 @@ public class id extends ej
             } else if (split[0].equalsIgnoreCase("/item") || split[0].equalsIgnoreCase("/i") || split[0].equalsIgnoreCase("/give")) {
                 if (split.length < 2) {
                     if (etc.getInstance().canIgnoreRestrictions(e)) {
-                        msg(Colors.Rose + "Correct usage is: /item [itemid] <amount> <player> (optional)");
+                        msg(Colors.Rose + "Correct usage is: "+ split[0] +" [itemid] <amount> <player> (optional)");
                     } else {
-                        msg(Colors.Rose + "Correct usage is: /item [itemid] <amount>");
+                        msg(Colors.Rose + "Correct usage is: "+ split[0] +" [itemid] <amount>");
                     }
                     return;
                 }
@@ -700,18 +698,27 @@ public class id extends ej
 
                 if (toGive != null) {
                     try {
-                        int i2 = 0;
+                        Item item = null;
                         try {
-                            i2 = Integer.parseInt(split[1]);
-                        } catch (NumberFormatException n) {
-                            i2 = etc.getInstance().getDataSource().getItem(split[1]);
+                            item = etc.getInstance().getDataSource().getItem(split[1]);
+                        } catch (NoSuchElementException n) {
+                            try {
+                                item = etc.getInstance().getDataSource().getItem(Integer.parseInt(split[1]));
+                                /*
+                                 * FIXME: This seems like a dumb way to do this.
+                                 */
+
+                            } catch (NumberFormatException n1) {
+                            } catch (NoSuchElementException n1) {
+                            }
                         }
+
                         int i3 = 1;
                         if (split.length > 2) {
                             i3 = Integer.parseInt(split[2]);
                         }
 
-                        String i2str = Integer.toString(i2);
+                        String i2str = Integer.toString(item.getId());
                         if (i3 == -1 && etc.getInstance().isAdmin(e)) {
                             i3 = 255;
                         } else if (i3 <= 0) {
@@ -738,19 +745,18 @@ public class id extends ej
                                 }
                             }
                         }
-                        if (i2 < ez.c.length) {
-                            if (ez.c[i2] != null && (allowedItem || etc.getInstance().canIgnoreRestrictions(this.e))) {
-                                a.log(Level.INFO, "Giving " + toGive.aq + " some " + i2);
+                        if (item.getId() < ez.c.length) {
+                            if (ez.c[item.getId()] != null && (allowedItem || etc.getInstance().canIgnoreRestrictions(this.e))) {
                                 if (i3 == 255) {
-                                    toGive.a(new gp(i2, 255));
+                                    toGive.a(new gp(item.getId(), 255));
                                 } else {
                                     int temp = i3;
 
                                     do {
                                         if (temp - 64 >= 64) {
-                                            toGive.a(new gp(i2, 64));
+                                            toGive.a(new gp(item.getId(), 64));
                                         } else {
-                                            toGive.a(new gp(i2, temp));
+                                            toGive.a(new gp(item.getId(), temp));
                                         }
                                         temp -= 64;
                                     } while (temp >= 64);
@@ -762,7 +768,7 @@ public class id extends ej
                                     msg(Colors.Rose + "Gift given! :D");
                                     toGive.a.msg(Colors.Rose + "Enjoy your gift! :D");
                                 }
-                            } else if ((!allowedItem) && (ez.c[i2] != null) && !etc.getInstance().canIgnoreRestrictions(this.e)) {
+                            } else if ((!allowedItem) && (ez.c[item.getId()] != null) && !etc.getInstance().canIgnoreRestrictions(this.e)) {
                                 msg(Colors.Rose + "You are not allowed to spawn that item.");
                             } else {
                                 msg(Colors.Rose + "No item with ID " + split[1]);

@@ -277,7 +277,8 @@ public class MySQLSource extends DataSource {
 
     public void loadItems() {
         synchronized (itemLock) {
-            items = new HashMap<String, Integer>();
+            items_map = new HashMap<String, Integer>();
+            items = new HashMap<String, Item>();
             Connection conn = null;
             PreparedStatement ps = null;
             ResultSet rs = null;
@@ -286,7 +287,8 @@ public class MySQLSource extends DataSource {
                 ps = conn.prepareStatement("SELECT * FROM items");
                 rs = ps.executeQuery();
                 while (rs.next()) {
-                    items.put(rs.getString("name"), rs.getInt("itemid"));
+                    items_map.put(rs.getString("name"), rs.getInt("itemid"));
+                    this.items.put(rs.getString("name"), new Item(rs.getInt("itemid"),rs.getString("name")));
                 }
             } catch (SQLException ex) {
                 log.log(Level.SEVERE, "Unable to retreive items from item table", ex);

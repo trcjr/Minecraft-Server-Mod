@@ -1,7 +1,10 @@
 /* Interface so we can either use MySQL or flat files */
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.minecraft.server.MinecraftServer;
@@ -20,7 +23,8 @@ public abstract class DataSource {
     protected List<Kit> kits;
     protected List<Warp> homes;
     protected List<Warp> warps;
-    protected Map<String, Integer> items;
+    protected Map<String, Integer> items_map;
+    protected Map<String, Item> items;
     protected MinecraftServer server;
     protected final Object userLock = new Object(), groupLock = new Object(), kitLock = new Object();
     protected final Object homeLock = new Object(), warpLock = new Object(), itemLock = new Object();
@@ -300,9 +304,9 @@ public abstract class DataSource {
     }
 
     /**
-     * Returns item id corresponding to item name
+     * Returns item  corresponding to item name
      * @param name
-     * @return item id
+     * @return item
      */
     public int getItem(String name) {
         synchronized (itemLock) {
@@ -310,7 +314,27 @@ public abstract class DataSource {
                 return items.get(name);
             }
         }
-        return 0;
+        throw new NoSuchElementException();
+    }
+    
+    /**
+     * Returns the item corresponding to item id
+     * @param id
+     * @return item
+     */
+    public Item getItem(Integer id) {
+        synchronized (itemLock) {
+            Item item;
+            Iterator<Entry<String, Item>> it = items.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pairs = it.next();
+                item = (Item) pairs.getValue();
+                if (item.getId() == id) {
+                    return item;
+                }
+            }
+        }
+        throw new NoSuchElementException();
     }
 
     /**
